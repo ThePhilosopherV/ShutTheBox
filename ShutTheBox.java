@@ -85,6 +85,17 @@ public class ShutTheBox extends Application {
                 current.remove(current.size() - 1);
             }
         }
+
+        public static List<List<Integer>> findCombinationsWithNumber(int target, int number) {
+            List<List<Integer>> combinations = findCombinations(target);
+            List<List<Integer>> result = new ArrayList<>();
+            for (List<Integer> combination : combinations) {
+                if (combination.contains(number)) {
+                    result.add(combination);
+                }
+            }
+            return result;
+        }
         private RollDiceButtonClickHandler rollDiceButtonClickHandler;
 
         public ButtonClickHandler(RollDiceButtonClickHandler rollDiceButtonClickHandler) {
@@ -95,10 +106,12 @@ public class ShutTheBox extends Application {
             
                 Button clickedButton = (Button) event.getSource(); // Get the button that was clicked
                 System.out.println("Button clicked: " + clickedButton.getText());
+                
                 int diceResult = rollDiceButtonClickHandler.getDiceResult();
                 int target = diceResult;
-                
-                List<List<Integer>> combinations = findCombinations(target);
+                int numberToFind = Integer.parseInt(clickedButton.getText());
+                List<List<Integer>> combinations = findCombinationsWithNumber(target, numberToFind);
+                // List<List<Integer>> combinations = findCombinations(target);
                 for (List<Integer> combination : combinations) {
                     System.out.println(combination);
                 }

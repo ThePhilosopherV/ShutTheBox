@@ -11,6 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShutTheBox extends Application {
 
@@ -66,6 +68,23 @@ public class ShutTheBox extends Application {
 
     }
     private class ButtonClickHandler implements EventHandler<ActionEvent> {
+        public static List<List<Integer>> findCombinations(int target) {
+            List<List<Integer>> result = new ArrayList<>();
+            findCombinationsHelper(target, 1, new ArrayList<>(), result);
+            return result;
+        }
+    
+        private static void findCombinationsHelper(int target, int start, List<Integer> current, List<List<Integer>> result) {
+            if (target == 0) {
+                result.add(new ArrayList<>(current));
+                return;
+            }
+            for (int i = start; i <= 10 && i <= target; i++) {
+                current.add(i);
+                findCombinationsHelper(target - i, i + 1, current, result);
+                current.remove(current.size() - 1);
+            }
+        }
         private RollDiceButtonClickHandler rollDiceButtonClickHandler;
 
         public ButtonClickHandler(RollDiceButtonClickHandler rollDiceButtonClickHandler) {
@@ -77,9 +96,16 @@ public class ShutTheBox extends Application {
                 Button clickedButton = (Button) event.getSource(); // Get the button that was clicked
                 System.out.println("Button clicked: " + clickedButton.getText());
                 int diceResult = rollDiceButtonClickHandler.getDiceResult();
-                System.out.println(diceResult);
+                int target = diceResult;
+                
+                List<List<Integer>> combinations = findCombinations(target);
+                for (List<Integer> combination : combinations) {
+                    System.out.println(combination);
+                }
 
-        }
+                        System.out.println(diceResult);
+
+                }
     }
     private class RollDiceButtonClickHandler implements EventHandler<ActionEvent> {
         private HBox TilesBox;
@@ -106,7 +132,7 @@ public class ShutTheBox extends Application {
                 }
             }
             RollDiceButton.setDisable(true); // Disable the button after it's clicked
-            diceResult = random.nextInt(6) + 1;
+            diceResult = random.nextInt(6) + 1 + random.nextInt(6) + 1 ;
             RollDiceLabel.setText("Dice Rolled: "+diceResult); // Change the text of the button
             
             // Generate a random number (simulating dice roll)

@@ -37,12 +37,14 @@ public class ShutTheBox extends Application {
         VBox root = new VBox(20);
         HBox TilesBox = new HBox(20);
         Random random = new Random();
-        RollDiceButton.setOnAction(new RollDiceButtonClickHandler(TilesBox,RollDiceButton,RollDiceLabel));
+        
+        RollDiceButtonClickHandler rollDiceButtonClickHandler = new RollDiceButtonClickHandler(TilesBox,RollDiceButton,RollDiceLabel);
+        RollDiceButton.setOnAction(rollDiceButtonClickHandler);
 
         for (int i = 1; i <= 9; i++) {
             Button button = new Button( Integer.toString(i));
             button.setDisable(true);
-            button.setOnAction(new ButtonClickHandler()); // Add event handler to button
+            button.setOnAction(new ButtonClickHandler(rollDiceButtonClickHandler)); // Add event handler to button
             TilesBox.getChildren().add(button); // Add button to HBox
         }
         
@@ -50,58 +52,33 @@ public class ShutTheBox extends Application {
 
         TilesBox.setAlignment(javafx.geometry.Pos.CENTER);
         root.setAlignment(javafx.geometry.Pos.CENTER);
-        // Set action for the button
-        
 
-        // Generate a random number between 1 and 6
-
-        // RoleDiceButton.setOnAction(new ButtonClickHandler());
-
-        
-        // RollDiceButton.setOnAction(event -> {
-            
-        //     int randomNumber = random.nextInt(6) + 1;
-        //     RollDiceLabel.setText("Rolled Dice: "+randomNumber) ;
-
-            
-        //     System.out.println(randomNumber);
-        // });
-
-        // Create a Scene with the VBox as root
         Scene scene = new Scene(root, 600, 500);
 
         // Set the Scene to the Stage
         primaryStage.setScene(scene);
 
         // Set the title of the Stage
-        primaryStage.setTitle("Hello World Application");
+        primaryStage.setTitle("Shut The Box!");
 
         // Show the Stage
         primaryStage.show();
 
     }
     private class ButtonClickHandler implements EventHandler<ActionEvent> {
+        private RollDiceButtonClickHandler rollDiceButtonClickHandler;
+
+        public ButtonClickHandler(RollDiceButtonClickHandler rollDiceButtonClickHandler) {
+            this.rollDiceButtonClickHandler = rollDiceButtonClickHandler;
+        }
         @Override
         public void handle(ActionEvent event) {
             
                 Button clickedButton = (Button) event.getSource(); // Get the button that was clicked
-                // String ButtonId = clickedButton.getId();
-                // if (ButtonId.equals("RollDice")){
-                //     boolean DiceRolled = true;
-                    
-                // }
                 System.out.println("Button clicked: " + clickedButton.getText());
-            
-                // Alert alert = new Alert(AlertType.INFORMATION);
-                // alert.setTitle("Warning");
-                // alert.setHeaderText(null);
-                // alert.setContentText("You have to roll the dice first!");
+                int diceResult = rollDiceButtonClickHandler.getDiceResult();
+                System.out.println(diceResult);
 
-                // // Show the alert
-                // alert.showAndWait();
-            
-            
-            // Add your logic for handling button clicks here
         }
     }
     private class RollDiceButtonClickHandler implements EventHandler<ActionEvent> {
@@ -109,6 +86,7 @@ public class ShutTheBox extends Application {
         private Button RollDiceButton;
         private Label RollDiceLabel;
         private Random random;
+        private int diceResult;
 
         public RollDiceButtonClickHandler(HBox TilesBox,Button RollDiceButton,Label RollDiceLabel) {
             this.RollDiceLabel = RollDiceLabel;
@@ -128,12 +106,16 @@ public class ShutTheBox extends Application {
                 }
             }
             RollDiceButton.setDisable(true); // Disable the button after it's clicked
-            int diceResult = random.nextInt(6) + 1;
+            diceResult = random.nextInt(6) + 1;
             RollDiceLabel.setText("Dice Rolled: "+diceResult); // Change the text of the button
             
             // Generate a random number (simulating dice roll)
             
             System.out.println("Dice rolled: " + diceResult);
+        }
+        // Getter method for diceResult
+        public int getDiceResult() {
+            return diceResult;
         }
     }
     public static void main(String[] args) {

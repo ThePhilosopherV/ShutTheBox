@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Iterator;
 
 
 public class ShutTheBox extends Application {
@@ -128,7 +129,26 @@ public class ShutTheBox extends Application {
         // private int counter;
         // private int sum;
         
+        public static boolean numberExistsInNestedList(int number, List<List<Integer>> nestedList) {
+            for (List<Integer> sublist : nestedList) {
+                for (int element : sublist) {
+                    if (number == element) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
+        public static void removeListsWithoutNumber(int number, List<List<Integer>> nestedList) {
+            Iterator<List<Integer>> iterator = nestedList.iterator();
+            while (iterator.hasNext()) {
+                List<Integer> sublist = iterator.next();
+                if (!sublist.contains(number)) {
+                    iterator.remove();
+                }
+            }
+        }
         @Override
         public void handle(ActionEvent event) {
                 if (DiceButtonActive ){
@@ -161,8 +181,6 @@ public class ShutTheBox extends Application {
                     }
                 }
 
-                
-                
                 if (found) {
                     //System.out.println("Item found in the array");
                 } else {
@@ -187,23 +205,21 @@ public class ShutTheBox extends Application {
                         }
                         
                         if (foundSubset) {
-                            System.out.println("At least one combination in Validcombinations is a subset of tilesLeft.");
+                            // System.out.println("At least one combination in Validcombinations is a subset of tilesLeft.");
                         } else {
-                            System.out.println("No combination in Validcombinations is a subset of tilesLeft.");
+                            // System.out.println("No combination in Validcombinations is a subset of tilesLeft.");
                         }
 
                         }
-                        
-                    
-                    // tempValidSequence.addAll(listOfValidCombos);
-                    // System.out.println("all: "+tempValidSequence.toString());    
+                    System.out.println("Valid combo: "+listOfValidCombos.toString());
                     if (listOfValidCombos.isEmpty()){
-                        System.out.println("You're lost");
-                    }else{
+                        System.out.println("empty");
+                    }else if (!numberExistsInNestedList(PickedTile, listOfValidCombos)) {
+                        System.out.println("Number not in valid combo");
+                    }
+                    else{
+                        removeListsWithoutNumber(PickedTile, listOfValidCombos);
                         NewCombo=false;
-                          
-                        
-                        
                         counter ++;
                         // System.out.println("counter:"+counter);
                         clickedButton.setDisable(true);

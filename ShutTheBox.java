@@ -25,6 +25,9 @@ public class ShutTheBox extends Application {
     // private int[] TilesPicked;
     private int[] TilesPicked = new int[10];
     // TilesPicked = new int[10];
+    private List<List<Integer>> listOfValidCombos = new ArrayList<>();
+    private List<List<Integer>> tempValidSequence = new ArrayList<>();
+    private boolean NewCombo = true;
 
     @Override
     public void start(Stage primaryStage) {
@@ -139,7 +142,7 @@ public class ShutTheBox extends Application {
                 }
                 Button clickedButton = (Button) event.getSource(); // Get the button that was clicked
 
-                System.out.println("Button clicked: " + clickedButton.getText());
+                // System.out.println("Button clicked: " + clickedButton.getText());
                 
                 int diceResult = rollDiceButtonClickHandler.getDiceResult();
                 // int target = diceResult;
@@ -165,21 +168,48 @@ public class ShutTheBox extends Application {
                 } else {
                     // System.out.println("Item not found in the array");
                     List<List<Integer>> Validcombinations = findCombinationsWithNumber(diceResult, PickedTile);
-
-                    if (Validcombinations.isEmpty()){
-                        
-                    }else{
+                    List<Integer> tilesLeft = findMissingNumbers(Arrays.stream(TilesPicked).boxed().collect(Collectors.toList()));
                         TilesPicked[counter] = PickedTile;
-                        List<Integer> tilesLeft = Arrays.stream(TilesPicked)
-                                          .boxed()
-                                          .collect(Collectors.toList());
-                        System.out.println(findMissingNumbers(tilesLeft).toString());
+                        // System.out.println("tiles left: "+ tilesLeft.toString());
+                        // for (List<Integer> combination : Validcombinations) {
+                        //     System.out.println("Valid combos: "+ combination.toString());
+                        // }
+                        if (NewCombo){
+                            boolean foundSubset = false;
+                        for (List<Integer> combination : Validcombinations) {
+                            // Check if tilesLeft contains all elements of the current combination
+                            if (tilesLeft.containsAll(combination)) {
+                                foundSubset = true;
+                                // System.out.println("tiles left"+tilesLeft.toString());
+                                // System.out.println("combo "+combination.toString());
+                                listOfValidCombos.add(combination);
+                            }
+                        }
+                        
+                        if (foundSubset) {
+                            System.out.println("At least one combination in Validcombinations is a subset of tilesLeft.");
+                        } else {
+                            System.out.println("No combination in Validcombinations is a subset of tilesLeft.");
+                        }
+
+                        }
+                        
+                    
+                    // tempValidSequence.addAll(listOfValidCombos);
+                    // System.out.println("all: "+tempValidSequence.toString());    
+                    if (listOfValidCombos.isEmpty()){
+                        System.out.println("You're lost");
+                    }else{
+                        NewCombo=false;
+                          
+                        
+                        
                         counter ++;
-                        System.out.println("counter:"+counter);
+                        // System.out.println("counter:"+counter);
                         clickedButton.setDisable(true);
                         sum = sum + PickedTile;
-                        System.out.println("sum:"+sum);
-                        System.out.println(Arrays.toString(TilesPicked));
+                        // System.out.println("sum:"+sum);
+                        // System.out.println(Arrays.toString(TilesPicked));
                         if (sum == diceResult){
                             Button RollDiceButton = rollDiceButtonClickHandler.getDiceButton();
                             Label RollDiceLabel = rollDiceButtonClickHandler.getDiceLabel();
@@ -187,6 +217,9 @@ public class ShutTheBox extends Application {
                             RollDiceButton.setDisable(false);
                             RollDiceLabel.setText("");
                             DiceButtonActive=true;
+                            NewCombo=true;
+                            listOfValidCombos = new ArrayList<>();
+
                             sum=0;
                         }
 
@@ -234,7 +267,7 @@ public class ShutTheBox extends Application {
             
             // Generate a random number (simulating dice roll)
             
-            System.out.println("Dice rolled: " + diceResult);
+            // System.out.println("Dice rolled: " + diceResult);
             
         }
         // Getter method for diceResult

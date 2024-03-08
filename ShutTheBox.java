@@ -14,12 +14,14 @@ import javafx.scene.control.Alert.AlertType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class ShutTheBox extends Application {
     private int counter = 0;
     private int sum = 0;
     private boolean FirstMove = false;
+    private boolean DiceButtonActive = true;
     // private int[] TilesPicked;
     private int[] TilesPicked = new int[10];
     // TilesPicked = new int[10];
@@ -76,6 +78,17 @@ public class ShutTheBox extends Application {
 
     }
     private class ButtonClickHandler implements EventHandler<ActionEvent> {
+        public static List<Integer> findMissingNumbers(List<Integer> numbersList) {
+            List<Integer> missingNumbers = new ArrayList<>();
+            // Iterate through numbers from 1 to 9
+            for (int i = 1; i <= 9; i++) {
+                // If a number is not present in the list, add it to the missingNumbers list
+                if (!numbersList.contains(i)) {
+                    missingNumbers.add(i);
+                }
+            }
+            return missingNumbers;
+        }
         public static List<List<Integer>> findCombinations(int target) {
             List<List<Integer>> result = new ArrayList<>();
             findCombinationsHelper(target, 1, new ArrayList<>(), result);
@@ -111,10 +124,19 @@ public class ShutTheBox extends Application {
         }
         // private int counter;
         // private int sum;
+        
 
         @Override
         public void handle(ActionEvent event) {
-            
+                if (DiceButtonActive ){
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Warning");
+                    alert.setHeaderText(null);
+                    alert.setContentText("You need to roll the dice!");
+
+                    alert.showAndWait();
+                    return;
+                }
                 Button clickedButton = (Button) event.getSource(); // Get the button that was clicked
 
                 System.out.println("Button clicked: " + clickedButton.getText());
@@ -135,16 +157,23 @@ public class ShutTheBox extends Application {
                         break;
                     }
                 }
+
+                
                 
                 if (found) {
-                    // System.out.println("Item found in the array");
+                    //System.out.println("Item found in the array");
                 } else {
                     // System.out.println("Item not found in the array");
                     List<List<Integer>> Validcombinations = findCombinationsWithNumber(diceResult, PickedTile);
+
                     if (Validcombinations.isEmpty()){
                         
                     }else{
                         TilesPicked[counter] = PickedTile;
+                        List<Integer> tilesLeft = Arrays.stream(TilesPicked)
+                                          .boxed()
+                                          .collect(Collectors.toList());
+                        System.out.println(findMissingNumbers(tilesLeft).toString());
                         counter ++;
                         System.out.println("counter:"+counter);
                         clickedButton.setDisable(true);
@@ -153,8 +182,11 @@ public class ShutTheBox extends Application {
                         System.out.println(Arrays.toString(TilesPicked));
                         if (sum == diceResult){
                             Button RollDiceButton = rollDiceButtonClickHandler.getDiceButton();
+                            Label RollDiceLabel = rollDiceButtonClickHandler.getDiceLabel();
 
                             RollDiceButton.setDisable(false);
+                            RollDiceLabel.setText("");
+                            DiceButtonActive=true;
                             sum=0;
                         }
 
@@ -163,13 +195,6 @@ public class ShutTheBox extends Application {
 
                 }
 
-                
-                // List<List<Integer>> combinations = findCombinations(target);
-                // for (List<Integer> combination : Validcombinations) {
-                //     System.out.println(combination);
-                // }
-
-                // System.out.println(diceResult);
 
                 }
     }
@@ -189,10 +214,13 @@ public class ShutTheBox extends Application {
 
         @Override
         public void handle(ActionEvent event) {
+            DiceButtonActive=false;
+
             int randomNumber = random.nextInt(6) + 1;
             
             // Enable all buttons in the HBox
             if (counter == 0){
+                
                 for (javafx.scene.Node node : TilesBox.getChildren()) {
                     if (node instanceof Button) {
                         ((Button) node).setDisable(false);
@@ -207,6 +235,7 @@ public class ShutTheBox extends Application {
             // Generate a random number (simulating dice roll)
             
             System.out.println("Dice rolled: " + diceResult);
+            
         }
         // Getter method for diceResult
         public int getDiceResult() {
@@ -214,6 +243,9 @@ public class ShutTheBox extends Application {
         }
         public Button getDiceButton() {
             return RollDiceButton;
+        }
+        public Label getDiceLabel() {
+            return RollDiceLabel;
         }
     }
     public static void main(String[] args) {

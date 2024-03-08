@@ -12,9 +12,17 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+
 public class ShutTheBox extends Application {
+    private int counter = 0;
+    private int sum = 0;
+    private boolean FirstMove = false;
+    // private int[] TilesPicked;
+    private int[] TilesPicked = new int[10];
+    // TilesPicked = new int[10];
 
     @Override
     public void start(Stage primaryStage) {
@@ -101,22 +109,67 @@ public class ShutTheBox extends Application {
         public ButtonClickHandler(RollDiceButtonClickHandler rollDiceButtonClickHandler) {
             this.rollDiceButtonClickHandler = rollDiceButtonClickHandler;
         }
+        // private int counter;
+        // private int sum;
+
         @Override
         public void handle(ActionEvent event) {
             
                 Button clickedButton = (Button) event.getSource(); // Get the button that was clicked
+
                 System.out.println("Button clicked: " + clickedButton.getText());
                 
                 int diceResult = rollDiceButtonClickHandler.getDiceResult();
-                int target = diceResult;
-                int numberToFind = Integer.parseInt(clickedButton.getText());
-                List<List<Integer>> combinations = findCombinationsWithNumber(target, numberToFind);
-                // List<List<Integer>> combinations = findCombinations(target);
-                for (List<Integer> combination : combinations) {
-                    System.out.println(combination);
+                // int target = diceResult;
+                int PickedTile = Integer.parseInt(clickedButton.getText());
+
+                
+                
+                // TilesPicked = new int[10];
+                // int sum = 0;
+                // int counter = 0;
+                boolean found = false;
+                for (int i = 0; i < TilesPicked.length; i++) {
+                    if (TilesPicked[i] == PickedTile) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (found) {
+                    // System.out.println("Item found in the array");
+                } else {
+                    // System.out.println("Item not found in the array");
+                    List<List<Integer>> Validcombinations = findCombinationsWithNumber(diceResult, PickedTile);
+                    if (Validcombinations.isEmpty()){
+                        
+                    }else{
+                        TilesPicked[counter] = PickedTile;
+                        counter ++;
+                        System.out.println("counter:"+counter);
+                        clickedButton.setDisable(true);
+                        sum = sum + PickedTile;
+                        System.out.println("sum:"+sum);
+                        System.out.println(Arrays.toString(TilesPicked));
+                        if (sum == diceResult){
+                            Button RollDiceButton = rollDiceButtonClickHandler.getDiceButton();
+
+                            RollDiceButton.setDisable(false);
+                            sum=0;
+                        }
+
+
+                    }
+
                 }
 
-                        System.out.println(diceResult);
+                
+                // List<List<Integer>> combinations = findCombinations(target);
+                // for (List<Integer> combination : Validcombinations) {
+                //     System.out.println(combination);
+                // }
+
+                // System.out.println(diceResult);
 
                 }
     }
@@ -139,11 +192,14 @@ public class ShutTheBox extends Application {
             int randomNumber = random.nextInt(6) + 1;
             
             // Enable all buttons in the HBox
-            for (javafx.scene.Node node : TilesBox.getChildren()) {
-                if (node instanceof Button) {
-                    ((Button) node).setDisable(false);
+            if (counter == 0){
+                for (javafx.scene.Node node : TilesBox.getChildren()) {
+                    if (node instanceof Button) {
+                        ((Button) node).setDisable(false);
+                    }
                 }
             }
+            
             RollDiceButton.setDisable(true); // Disable the button after it's clicked
             diceResult = random.nextInt(6) + 1 + random.nextInt(6) + 1 ;
             RollDiceLabel.setText("Dice Rolled: "+diceResult); // Change the text of the button
@@ -155,6 +211,9 @@ public class ShutTheBox extends Application {
         // Getter method for diceResult
         public int getDiceResult() {
             return diceResult;
+        }
+        public Button getDiceButton() {
+            return RollDiceButton;
         }
     }
     public static void main(String[] args) {

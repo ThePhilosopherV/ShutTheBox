@@ -25,6 +25,7 @@ public class ShutTheBox extends Application {
     private boolean DiceButtonActive = true;
     // private int[] TilesPicked;
     private int[] TilesPicked = new int[10];
+    private  List<Integer> TilesLeft2 = new ArrayList<>();
     // TilesPicked = new int[10];
     private List<List<Integer>> listOfValidCombos = new ArrayList<>();
     private List<List<Integer>> tempValidSequence = new ArrayList<>();
@@ -156,7 +157,6 @@ public class ShutTheBox extends Application {
                     alert.setTitle("Warning");
                     alert.setHeaderText(null);
                     alert.setContentText("You need to roll the dice!");
-
                     alert.showAndWait();
                     return;
                 }
@@ -187,7 +187,9 @@ public class ShutTheBox extends Application {
                     // System.out.println("Item not found in the array");
                     List<List<Integer>> Validcombinations = findCombinationsWithNumber(diceResult, PickedTile);
                     List<Integer> tilesLeft = findMissingNumbers(Arrays.stream(TilesPicked).boxed().collect(Collectors.toList()));
+                    
                         TilesPicked[counter] = PickedTile;
+                    TilesLeft2 = findMissingNumbers(Arrays.stream(TilesPicked).boxed().collect(Collectors.toList()));
                         // System.out.println("tiles left: "+ tilesLeft.toString());
                         // for (List<Integer> combination : Validcombinations) {
                         //     System.out.println("Valid combos: "+ combination.toString());
@@ -211,6 +213,13 @@ public class ShutTheBox extends Application {
                         }
 
                         }
+                        if (TilesLeft2.isEmpty()) {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Congratz!");
+                            alert.setHeaderText(null);
+                            alert.setContentText("You shut the box, you're a hero!");
+                            alert.showAndWait();
+                        } 
                     System.out.println("Valid combo: "+listOfValidCombos.toString());
                     if (listOfValidCombos.isEmpty()){
                         System.out.println("empty");
@@ -248,6 +257,36 @@ public class ShutTheBox extends Application {
                 }
     }
     private class RollDiceButtonClickHandler implements EventHandler<ActionEvent> {
+
+        public static boolean canSumToTarget(List<Integer> numbers, int target) {
+            return canSumToTargetHelper(numbers, target, 0);
+        }
+    
+        private static boolean canSumToTargetHelper(List<Integer> numbers, int target, int currentIndex) {
+            if (target == 0) {
+                return true;  // Base case: target reached
+            }
+    
+            if (target < 0 || currentIndex >= numbers.size()) {
+                return false;  // Base case: target not reachable or no more numbers to consider
+            }
+    
+            // Include the current number in the sum
+            if (canSumToTargetHelper(numbers, target - numbers.get(currentIndex), currentIndex + 1)) {
+                return true;
+            }
+    
+            // Exclude the current number from the sum
+            return canSumToTargetHelper(numbers, target, currentIndex + 1);
+        }
+        
+        public static int sumList(List<Integer> numbers) {
+            int sum = 0;
+            for (int num : numbers) {
+                sum += num;
+            }
+            return sum;
+        }
         private HBox TilesBox;
         private Button RollDiceButton;
         private Label RollDiceLabel;
@@ -266,6 +305,10 @@ public class ShutTheBox extends Application {
             DiceButtonActive=false;
 
             int randomNumber = random.nextInt(6) + 1;
+
+            // if (listOfValidCombos.isEmpty()) {
+                
+            // }
             
             // Enable all buttons in the HBox
             if (counter == 0){
@@ -280,6 +323,17 @@ public class ShutTheBox extends Application {
             RollDiceButton.setDisable(true); // Disable the button after it's clicked
             diceResult = random.nextInt(6) + 1 + random.nextInt(6) + 1 ;
             RollDiceLabel.setText("Dice Rolled: "+diceResult); // Change the text of the button
+
+            if (!canSumToTarget(TilesLeft2, diceResult) && counter != 0 ) {
+                
+                System.out.println("Tiles left: "+TilesLeft2.toString());
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Out");
+                    alert.setHeaderText(null);
+                    alert.setContentText("You're out with a score :"+sumList(TilesLeft2));
+                    alert.showAndWait();
+
+            }
             
             // Generate a random number (simulating dice roll)
             

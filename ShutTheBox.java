@@ -23,6 +23,10 @@ import javafx.application.Platform;
 
 public class ShutTheBox extends Application {
     
+    private int NumOfPlayers ;
+    private int[] Scores ;
+    boolean GameOver = false;
+    
     private int counter = 0;
     private int sum = 0;
     private boolean FirstMove = false;
@@ -87,6 +91,8 @@ public class ShutTheBox extends Application {
                         if (numPlayers >= 1 && numPlayers <= 4) {
                             // Valid input, proceed with the number of players
                             System.out.println("Number of players: " + numPlayers);
+                            NumOfPlayers = numPlayers;
+                            Scores =  new int[NumOfPlayers];
                             leaveFlag = true;
                             showPlayStage(primaryStage);
                         } else {

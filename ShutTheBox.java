@@ -26,7 +26,8 @@ public class ShutTheBox extends Application {
     private int NumOfPlayers ;
     private int[] Scores ;
     boolean GameOver = false;
-    
+    private int CurrentPlayer = 1 ;
+
     private int counter = 0;
     private int sum = 0;
     private boolean FirstMove = false;
@@ -41,6 +42,9 @@ public class ShutTheBox extends Application {
     boolean leaveFlag = false;
     boolean leaveMenu = false;
     private final CountDownLatch latch = new CountDownLatch(1);
+    // private Stage primaryStage = new Stage();
+
+
 
     // private boolean playClicked = false;
     // private boolean instructionsClicked = false;
@@ -167,7 +171,7 @@ public class ShutTheBox extends Application {
     }
 
         
-    private void showPlayStage(Stage primaryStage) {
+    public void showPlayStage(Stage primaryStage) {
         
 
     
@@ -207,6 +211,17 @@ public class ShutTheBox extends Application {
         Scene scene = new Scene(root, 600, 500);
         HBox TilesBox = new HBox(20);
         Random random = new Random();
+
+        VBox PlayersBox = new VBox(20);
+
+        for (int i = 1; i <= NumOfPlayers; i++) {
+            
+            Label label = new Label( "Player " + Integer.toString(i)+"'s Score: " + String.valueOf(Scores[i-1]) );
+            // button.setDisable(true);
+            // button.setOnAction(new ButtonClickHandler(rollDiceButtonClickHandler)); // Add event handler to button
+            PlayersBox.getChildren().add(label); // Add button to HBox
+        }
+
         
         RollDiceButtonClickHandler rollDiceButtonClickHandler = new RollDiceButtonClickHandler(TilesBox,RollDiceButton,RollDiceLabel);
         RollDiceButton.setOnAction(rollDiceButtonClickHandler);
@@ -218,8 +233,8 @@ public class ShutTheBox extends Application {
             TilesBox.getChildren().add(button); // Add button to HBox
         }
         
-        root.getChildren().addAll(TilesBox,DiceBox,RestartButton);
-
+        root.getChildren().addAll(TilesBox,PlayersBox,DiceBox,RestartButton);
+        PlayersBox.setAlignment(javafx.geometry.Pos.CENTER);
         TilesBox.setAlignment(javafx.geometry.Pos.CENTER);
         root.setAlignment(javafx.geometry.Pos.CENTER);
 
@@ -478,12 +493,19 @@ public class ShutTheBox extends Application {
             RollDiceLabel.setText("Dice Rolled: "+diceResult); // Change the text of the button
 
             if (!canSumToTarget(TilesLeft2, diceResult) && counter != 0 ) {
+                Scores[CurrentPlayer]=sumList(TilesLeft2);
                 
                 System.out.println("Tiles left: "+TilesLeft2.toString());
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Out");
                     alert.setHeaderText(null);
                     alert.setContentText("You're out with a score :"+sumList(TilesLeft2));
+
+                    
+                    CurrentPlayer++ ;
+                    // NextPlayer();
+                    
+                    // showPlayStage(primaryStage);
                     alert.showAndWait();
 
             }
@@ -503,6 +525,7 @@ public class ShutTheBox extends Application {
         public Label getDiceLabel() {
             return RollDiceLabel;
         }
+        
     }
     public static void main(String[] args) {
         // Launch the JavaFX application

@@ -16,9 +16,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Iterator;
-
+import javafx.scene.control.TextInputDialog;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import javafx.application.Platform;
 
 public class ShutTheBox extends Application {
+    
     private int counter = 0;
     private int sum = 0;
     private boolean FirstMove = false;
@@ -30,14 +34,156 @@ public class ShutTheBox extends Application {
     private List<List<Integer>> listOfValidCombos = new ArrayList<>();
     private List<List<Integer>> tempValidSequence = new ArrayList<>();
     private boolean NewCombo = true;
+    boolean leaveFlag = false;
+    boolean leaveMenu = false;
+    private final CountDownLatch latch = new CountDownLatch(1);
+
+    // private boolean playClicked = false;
+    // private boolean instructionsClicked = false;
+    // private boolean quitClicked = false;
+    
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    // private void handleButtonClick(Stage primaryStage) {
+    //     if (playClicked || instructionsClicked || quitClicked) {
+    //         // At least one button has been clicked, proceed with the rest of the code
+    //         System.out.println("Decision made. Proceeding with the rest of the code.");
+    //         // Close the window
+    //         primaryStage.close();
+    //     }
+
+    // }
 
     @Override
     public void start(Stage primaryStage) {
+        // Add buttons to VBox layout
+        
+        
+        Button playButton = new Button("Play");
+        playButton.setMinSize(120, 40);
+        playButton.setOnAction(event -> {
+            
+            // playClicked = true;
+            // Handle "Play" button click
+            System.out.println("Play button clicked");
+            while (!leaveFlag) {
+                TextInputDialog dialog = new TextInputDialog();
+                dialog.setTitle("Number of Players");
+                dialog.setHeaderText(null);
+                dialog.setContentText("Enter the number of players (1-4):");
+                
+                Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()){
+                result.ifPresent(input -> {
+                    try {
+                        int numPlayers = Integer.parseInt(input);
+                        if (numPlayers >= 1 && numPlayers <= 4) {
+                            // Valid input, proceed with the number of players
+                            System.out.println("Number of players: " + numPlayers);
+                            leaveFlag = true;
+                            showPlayStage(primaryStage);
+                        } else {
+                            // Invalid input, show error message
+                            showError("Invalid input", "Please enter a number between 1 and 4.");
+                        }
+        
+                    } catch (NumberFormatException e) {
+                        // Input is not a valid integer, show error message
+                        showError("Invalid input", "Please enter a valid integer.");
+                    }
+                });
+            }else{
+                leaveFlag = true;
+                
+            }
+                }
+
+            
+        leaveFlag = false;    // primaryStage.close(); // Close the menu
+            // handleButtonClick(primaryStage);
+        });
+
+        Button instructionsButton = new Button("Instructions");
+        instructionsButton.setMinSize(120, 40);
+        instructionsButton.setOnAction(event -> {
+            
+            String msg = """
+                Welcome to 'Shut the box' game 
+                This game can be played by one to four players maximum 
+                the game start by one player rolling the dice and trying 
+                to cover the tiles that adds up to the Dice rolled result,
+                if a player has no available tiles that can adds up to 
+                the Dice rolled result he's/she's out and the other 
+                player's turn begin, the game is ended when one of 
+                the player(s) shut the whole box meaning closing the whole
+                tiles or after two rounds the player with lower score (sum
+                of the remaining tiles) wins, if the the score is equal it's a draw.
+                """;
+            showError("Instructions",msg);
+            // instructionsClicked = true;
+            // Handle "Instructions" button click
+            System.out.println("Instructions button clicked");
+
+            // primaryStage.close(); // Close the menu
+            // handleButtonClick(primaryStage);
+        });
+
+        Button quitButton = new Button("Quit");
+        quitButton.setMinSize(120, 40);
+        quitButton.setOnAction(event -> {
+            // quitClicked = true;
+            // Handle "Quit" button click
+            System.out.println("Quit button clicked");
+            Platform.exit(); // Close the menu
+            // handleButtonClick(primaryStage);
+        });
+
+        VBox menu = new VBox(10); // VBox with vertical spacing of 10 pixels
+
+        menu.getChildren().addAll(playButton, instructionsButton, quitButton);
+        menu.setAlignment(javafx.geometry.Pos.CENTER);
+        // // Create scene and set it in the stage
+        
+        Scene scene = new Scene(menu, 600, 400);
+        primaryStage.setScene(scene);
+        
+        primaryStage.setTitle("Shut The Box");
+        
+        primaryStage.show();
+    
+    }
+
+        
+    private void showPlayStage(Stage primaryStage) {
+        
+
+    
         // Create a Label with "Hello, World!" text
         
         Label RollDiceLabel = new Label("");
 
         Button RollDiceButton = new Button("Roll the Dice!");
+
+        Button RestartButton = new Button("Restart");
+        RestartButton.setMinSize(120, 40);
+        RestartButton.setOnAction(event -> {
+            // quitClicked = true;
+            // Handle "Quit" button click
+            TilesLeft2 = new ArrayList<>();
+            counter = 0;
+            TilesPicked = new int[10];
+            start(primaryStage);
+            // Close the menu
+            // handleButtonClick(primaryStage);
+        });
+
         RollDiceButton.setId("RollDice");
         
 
@@ -52,6 +198,7 @@ public class ShutTheBox extends Application {
         
         // Create a VBox layout and add the Label and Button to it
         VBox root = new VBox(20);
+        Scene scene = new Scene(root, 600, 500);
         HBox TilesBox = new HBox(20);
         Random random = new Random();
         
@@ -65,12 +212,12 @@ public class ShutTheBox extends Application {
             TilesBox.getChildren().add(button); // Add button to HBox
         }
         
-        root.getChildren().addAll(TilesBox,DiceBox);
+        root.getChildren().addAll(TilesBox,DiceBox,RestartButton);
 
         TilesBox.setAlignment(javafx.geometry.Pos.CENTER);
         root.setAlignment(javafx.geometry.Pos.CENTER);
 
-        Scene scene = new Scene(root, 600, 500);
+        // Scene scene = new Scene(root, 600, 500);
 
         // Set the Scene to the Stage
         primaryStage.setScene(scene);
@@ -80,8 +227,8 @@ public class ShutTheBox extends Application {
 
         // Show the Stage
         primaryStage.show();
-
     }
+    
     private class ButtonClickHandler implements EventHandler<ActionEvent> {
         public static List<Integer> findMissingNumbers(List<Integer> numbersList) {
             List<Integer> missingNumbers = new ArrayList<>();

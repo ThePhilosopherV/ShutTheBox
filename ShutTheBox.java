@@ -22,11 +22,13 @@ import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
 
 public class ShutTheBox extends Application {
+    private HBox playersBox;
+    private Label[] playerLabels;
     
     private int NumOfPlayers ;
     private int[] Scores ;
     boolean GameOver = false;
-    private int CurrentPlayer = 1 ;
+    private int CurrentPlayer = 0 ;
 
     private int counter = 0;
     private int sum = 0;
@@ -96,7 +98,7 @@ public class ShutTheBox extends Application {
                             // Valid input, proceed with the number of players
                             System.out.println("Number of players: " + numPlayers);
                             NumOfPlayers = numPlayers;
-                            Scores =  new int[NumOfPlayers];
+                            Scores =  new int[NumOfPlayers+1];
                             leaveFlag = true;
                             showPlayStage(primaryStage);
                         } else {
@@ -212,14 +214,14 @@ public class ShutTheBox extends Application {
         HBox TilesBox = new HBox(20);
         Random random = new Random();
 
-        VBox PlayersBox = new VBox(20);
-
+        HBox PlayersBox = new HBox(20);
+        playerLabels = new Label[NumOfPlayers];
         for (int i = 1; i <= NumOfPlayers; i++) {
             
-            Label label = new Label( "Player " + Integer.toString(i)+"'s Score: " + String.valueOf(Scores[i-1]) );
+            playerLabels[i-1] = new Label( "Player " + Integer.toString(i)+"'s Score: " + String.valueOf(Scores[i-1]) );
             // button.setDisable(true);
             // button.setOnAction(new ButtonClickHandler(rollDiceButtonClickHandler)); // Add event handler to button
-            PlayersBox.getChildren().add(label); // Add button to HBox
+            PlayersBox.getChildren().add(playerLabels[i-1]); // Add button to HBox
         }
 
         
@@ -233,7 +235,7 @@ public class ShutTheBox extends Application {
             TilesBox.getChildren().add(button); // Add button to HBox
         }
         
-        root.getChildren().addAll(TilesBox,PlayersBox,DiceBox,RestartButton);
+        root.getChildren().addAll(PlayersBox,TilesBox,DiceBox,RestartButton);
         PlayersBox.setAlignment(javafx.geometry.Pos.CENTER);
         TilesBox.setAlignment(javafx.geometry.Pos.CENTER);
         root.setAlignment(javafx.geometry.Pos.CENTER);
@@ -503,10 +505,35 @@ public class ShutTheBox extends Application {
 
                     
                     CurrentPlayer++ ;
+                    System.out.println("Current player" + CurrentPlayer);
+                    
+                    DiceButtonActive=true;
+                    RollDiceButton.setDisable(false);
+                    TilesLeft2 =  new ArrayList<>();
+                    counter = 0;
+                    TilesPicked = new int[10];
                     // NextPlayer();
                     
                     // showPlayStage(primaryStage);
                     alert.showAndWait();
+                    for (javafx.scene.Node node : TilesBox.getChildren()) {
+                        if (node instanceof Button) {
+                            ((Button) node).setDisable(false);
+                        }
+                    }
+                    
+                    // for (javafx.scene.Node node : getPlayersBox().getChildren()) {
+                    //     if (node instanceof Label) {
+                    //         ((Label) node).setDisable(false);
+                    //     }
+                    // }
+
+                    // VBox PlayersBox = new VBox(20);
+                    System.out.println(Scores[0]);
+                    for (int i = 1; i <= NumOfPlayers; i++) {
+                        playerLabels[i-1].setText( "Player " + Integer.toString(i)+"'s Score: " + Scores[i-1] );
+                        // PlayersBox.getChildren().add(playerLabels[i-1]); // Add button to HBox
+                    }
 
             }
             
@@ -525,6 +552,8 @@ public class ShutTheBox extends Application {
         public Label getDiceLabel() {
             return RollDiceLabel;
         }
+        
+        
         
     }
     public static void main(String[] args) {

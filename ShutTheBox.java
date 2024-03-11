@@ -326,7 +326,7 @@ public class ShutTheBox extends Application {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Warning");
                     alert.setHeaderText(null);
-                    alert.setContentText("You need to roll the dice!");
+                    alert.setContentText("You need to roll the dice first!");
                     alert.showAndWait();
                     return;
                 }
@@ -534,6 +534,7 @@ public class ShutTheBox extends Application {
                         playerLabels[i-1].setText( "Player " + Integer.toString(i)+"'s Score: " + Scores[i-1] );
                         // PlayersBox.getChildren().add(playerLabels[i-1]); // Add button to HBox
                     }
+                    RollDiceLabel.setText("");
 
             }
             

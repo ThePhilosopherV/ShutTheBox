@@ -191,6 +191,8 @@ public class ShutTheBox extends Application {
             TilesLeft2 = new ArrayList<>();
             counter = 0;
             TilesPicked = new int[10];
+            CurrentPlayer = 0;
+
             start(primaryStage);
             // Close the menu
             // handleButtonClick(primaryStage);
@@ -505,7 +507,8 @@ public class ShutTheBox extends Application {
 
                     
                     CurrentPlayer++ ;
-                    System.out.println("Current player" + CurrentPlayer);
+                    
+                    System.out.println("Current player: " + CurrentPlayer);
                     
                     DiceButtonActive=true;
                     RollDiceButton.setDisable(false);
@@ -516,6 +519,35 @@ public class ShutTheBox extends Application {
                     
                     // showPlayStage(primaryStage);
                     alert.showAndWait();
+                    System.out.println(Scores[0]);
+                    for (int i = 1; i <= NumOfPlayers; i++) {
+                        playerLabels[i-1].setText( "Player " + Integer.toString(i)+"'s Score: " + Scores[i-1] );
+                        // PlayersBox.getChildren().add(playerLabels[i-1]); // Add button to HBox
+                    }
+                    RollDiceLabel.setText("");
+
+                    if (CurrentPlayer == NumOfPlayers){
+                        int minScore = Scores[0];
+                        int minIndex = 0;
+                        for (int i = 1; i < Scores.length; i++) {
+                            if (Scores[i] < minScore) {
+                                minScore = Scores[i];
+                                minIndex = i;
+                            }
+                        }
+                        System.out.println(minIndex);
+                        showError("Winner","Winner is player "+ Integer.toString(minIndex));
+
+                        RollDiceButton.setDisable(true);
+                        for (javafx.scene.Node node : TilesBox.getChildren()) {
+                            if (node instanceof Button) {
+                                ((Button) node).setDisable(true);
+                            }
+                        }
+                        DiceButtonActive = false;
+                        return;
+
+                    }
                     for (javafx.scene.Node node : TilesBox.getChildren()) {
                         if (node instanceof Button) {
                             ((Button) node).setDisable(false);
@@ -529,12 +561,7 @@ public class ShutTheBox extends Application {
                     // }
 
                     // VBox PlayersBox = new VBox(20);
-                    System.out.println(Scores[0]);
-                    for (int i = 1; i <= NumOfPlayers; i++) {
-                        playerLabels[i-1].setText( "Player " + Integer.toString(i)+"'s Score: " + Scores[i-1] );
-                        // PlayersBox.getChildren().add(playerLabels[i-1]); // Add button to HBox
-                    }
-                    RollDiceLabel.setText("");
+                    
 
             }
             

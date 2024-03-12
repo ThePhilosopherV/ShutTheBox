@@ -20,10 +20,14 @@ import javafx.scene.control.TextInputDialog;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.geometry.Insets;
 
 public class ShutTheBox extends Application {
     private HBox playersBox;
     private Label[] playerLabels;
+    Button RollDiceButton = new Button("Roll the Dice!");
     
     private int NumOfPlayers ;
     private int[] Scores ;
@@ -43,7 +47,13 @@ public class ShutTheBox extends Application {
     private boolean NewCombo = true;
     boolean leaveFlag = false;
     boolean leaveMenu = false;
+    // HBox TilesBox = new HBox(20);
     private final CountDownLatch latch = new CountDownLatch(1);
+    javafx.scene.layout.Border border = new javafx.scene.layout.Border(
+                new javafx.scene.layout.BorderStroke(Color.RED,
+                        javafx.scene.layout.BorderStrokeStyle.SOLID,
+                        null,
+                        new javafx.scene.layout.BorderWidths(2)));
     // private Stage primaryStage = new Stage();
 
 
@@ -82,7 +92,7 @@ public class ShutTheBox extends Application {
             
             // playClicked = true;
             // Handle "Play" button click
-            System.out.println("Play button clicked");
+            // System.out.println("Play button clicked");
             while (!leaveFlag) {
                 TextInputDialog dialog = new TextInputDialog();
                 dialog.setTitle("Number of Players");
@@ -96,9 +106,9 @@ public class ShutTheBox extends Application {
                         int numPlayers = Integer.parseInt(input);
                         if (numPlayers >= 1 && numPlayers <= 4) {
                             // Valid input, proceed with the number of players
-                            System.out.println("Number of players: " + numPlayers);
+                            // System.out.println("Number of players: " + numPlayers);
                             NumOfPlayers = numPlayers;
-                            Scores =  new int[NumOfPlayers+1];
+                            Scores =  new int[NumOfPlayers];
                             leaveFlag = true;
                             showPlayStage(primaryStage);
                         } else {
@@ -135,13 +145,13 @@ public class ShutTheBox extends Application {
                 the Dice rolled result he's/she's out and the other 
                 player's turn begin, the game is ended when one of 
                 the player(s) shut the whole box meaning closing the whole
-                tiles or after two rounds the player with lower score (sum
+                tiles or after one round the player with lower score (sum
                 of the remaining tiles) wins, if the the score is equal it's a draw.
                 """;
             showError("Instructions",msg);
             // instructionsClicked = true;
             // Handle "Instructions" button click
-            System.out.println("Instructions button clicked");
+            // System.out.println("Instructions button clicked");
 
             // primaryStage.close(); // Close the menu
             // handleButtonClick(primaryStage);
@@ -152,7 +162,7 @@ public class ShutTheBox extends Application {
         quitButton.setOnAction(event -> {
             // quitClicked = true;
             // Handle "Quit" button click
-            System.out.println("Quit button clicked");
+            // System.out.println("Quit button clicked");
             Platform.exit(); // Close the menu
             // handleButtonClick(primaryStage);
         });
@@ -181,7 +191,7 @@ public class ShutTheBox extends Application {
         
         Label RollDiceLabel = new Label("");
 
-        Button RollDiceButton = new Button("Roll the Dice!");
+        
 
         Button RestartButton = new Button("Restart");
         RestartButton.setMinSize(120, 40);
@@ -192,6 +202,8 @@ public class ShutTheBox extends Application {
             counter = 0;
             TilesPicked = new int[10];
             CurrentPlayer = 0;
+            RollDiceButton.setDisable(false);
+            DiceButtonActive = true;
 
             start(primaryStage);
             // Close the menu
@@ -213,19 +225,27 @@ public class ShutTheBox extends Application {
         // Create a VBox layout and add the Label and Button to it
         VBox root = new VBox(20);
         Scene scene = new Scene(root, 600, 500);
-        HBox TilesBox = new HBox(20);
+        
         Random random = new Random();
 
         HBox PlayersBox = new HBox(20);
+        // javafx.scene.layout.Border border = new javafx.scene.layout.Border(
+        //         new javafx.scene.layout.BorderStroke(Color.RED,
+        //                 javafx.scene.layout.BorderStrokeStyle.SOLID,
+        //                 null,
+        //                 new javafx.scene.layout.BorderWidths(2)));
         playerLabels = new Label[NumOfPlayers];
+        HBox TilesBox = new HBox(20);
         for (int i = 1; i <= NumOfPlayers; i++) {
             
             playerLabels[i-1] = new Label( "Player " + Integer.toString(i)+"'s Score: " + String.valueOf(Scores[i-1]) );
+           
             // button.setDisable(true);
             // button.setOnAction(new ButtonClickHandler(rollDiceButtonClickHandler)); // Add event handler to button
             PlayersBox.getChildren().add(playerLabels[i-1]); // Add button to HBox
         }
-
+        playerLabels[CurrentPlayer].setBorder(border);
+        playerLabels[CurrentPlayer].setPadding(new Insets(5));
         
         RollDiceButtonClickHandler rollDiceButtonClickHandler = new RollDiceButtonClickHandler(TilesBox,RollDiceButton,RollDiceLabel);
         RollDiceButton.setOnAction(rollDiceButtonClickHandler);
@@ -391,12 +411,15 @@ public class ShutTheBox extends Application {
                             alert.setHeaderText(null);
                             alert.setContentText("You shut the box, you're a hero!");
                             alert.showAndWait();
+                            RollDiceButton.setDisable(true);
+                            
+
                         } 
-                    System.out.println("Valid combo: "+listOfValidCombos.toString());
+                    // System.out.println("Valid combo: "+listOfValidCombos.toString());
                     if (listOfValidCombos.isEmpty()){
-                        System.out.println("empty");
+                        // System.out.println("empty");
                     }else if (!numberExistsInNestedList(PickedTile, listOfValidCombos)) {
-                        System.out.println("Number not in valid combo");
+                        // System.out.println("Number not in valid combo");
                     }
                     else{
                         removeListsWithoutNumber(PickedTile, listOfValidCombos);
@@ -499,16 +522,21 @@ public class ShutTheBox extends Application {
             if (!canSumToTarget(TilesLeft2, diceResult) && counter != 0 ) {
                 Scores[CurrentPlayer]=sumList(TilesLeft2);
                 
-                System.out.println("Tiles left: "+TilesLeft2.toString());
+                // System.out.println("Tiles left: "+TilesLeft2.toString());
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Out");
                     alert.setHeaderText(null);
                     alert.setContentText("You're out with a score :"+sumList(TilesLeft2));
 
-                    
+                    playerLabels[CurrentPlayer].setBorder(null);
                     CurrentPlayer++ ;
+                    if (CurrentPlayer != NumOfPlayers){
+                        playerLabels[CurrentPlayer].setBorder(border);
+                        playerLabels[CurrentPlayer].setPadding(new Insets(5));
+                    }
                     
-                    System.out.println("Current player: " + CurrentPlayer);
+                    
+                    // System.out.println("Current player: " + CurrentPlayer);
                     
                     DiceButtonActive=true;
                     RollDiceButton.setDisable(false);
@@ -519,24 +547,40 @@ public class ShutTheBox extends Application {
                     
                     // showPlayStage(primaryStage);
                     alert.showAndWait();
-                    System.out.println(Scores[0]);
+                    // System.out.println(Scores[0]);
+                    // System.out.print("Scores: ");
+                    // for (int i = 0; i < Scores.length; i++) {
+                    //     System.out.print(Scores[i]);
+                    //     if (i < Scores.length - 1) {
+                    //         System.out.print(", "); // Print comma and space for all elements except the last one
+                    //     }
+                    // }
+                    
                     for (int i = 1; i <= NumOfPlayers; i++) {
+                        // playerLabels[i].setBorder(border);
+                        
+                        
                         playerLabels[i-1].setText( "Player " + Integer.toString(i)+"'s Score: " + Scores[i-1] );
                         // PlayersBox.getChildren().add(playerLabels[i-1]); // Add button to HBox
                     }
                     RollDiceLabel.setText("");
 
                     if (CurrentPlayer == NumOfPlayers){
-                        int minScore = Scores[0];
                         int minIndex = 0;
+                        int minValue = Scores[0];
                         for (int i = 1; i < Scores.length; i++) {
-                            if (Scores[i] < minScore) {
-                                minScore = Scores[i];
+                            if (Scores[i] < minValue) {
+                                minValue = Scores[i];
                                 minIndex = i;
                             }
                         }
-                        System.out.println(minIndex);
-                        showError("Winner","Winner is player "+ Integer.toString(minIndex));
+                        // System.out.println("Scores: "+Scores.toString());
+                        if (NumOfPlayers != 1){
+                            showError("Winner","Winner is player "+ String.valueOf(minIndex+1));
+                        }
+                        // System.out.println("Min value: "+minValue);
+                        // System.out.println("Min Index: "+minIndex);
+                        
 
                         RollDiceButton.setDisable(true);
                         for (javafx.scene.Node node : TilesBox.getChildren()) {
